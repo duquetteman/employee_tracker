@@ -70,7 +70,7 @@ function init() {
 }
 
 
-//View all:
+//View all departments:
 function viewDepartments() {
     var query = "SELECT * FROM department";
     connection.query(query, function (err, res) {
@@ -81,56 +81,31 @@ function viewDepartments() {
     });
   }
 
-
-//Add new:
-function addEmployee() {
-
-    let join = "SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee RIGHT JOIN role ON employee.role_id = role.id";
-
-    connection.query(join, function (err, res) {
-        if (err) throw err;
-        inquirer
-            .prompt([
-                {
-                    name: "firstName",
-                    type: "input",
-                    message: "What is their first name?",
-                },
-                {
-                    name: "lastName",
-                    type: "input",
-                    message: "What is their last name?"
-                },
-                {
-                    name: "role",
-                    type: "list",
-                    message: "What is their role?",
-                    choices: function () {
-                        let choiceArray = [];
-                        for (let i = 0; i < res.length; i++) {
-                            choiceArray.push(res[i].title);
-                        }
-                        return choiceArray;
-                    }
-                },
-                {
-                    name: "manager",
-                    type: "list",
-                    message: "Who is their manager?",
-                    choices: function () {
-                        let choiceArray = [];
-                        for (let i = 0; i < res.length; i++) {
-                            choiceArray.push(`${res[i].first_name} ${res[i].last_name}`);
-                        }
-                        return choiceArray;
-                    }
-                }
-            ])
-            .then(function (answer) {
-                connnection.query("")
-            });
+  //View all roles:
+  function viewRoles() {
+    var query = "SELECT role_id, role_title FROM role";
+    connection.query(query, function (err, res) {
+      if (err) throw err;
+      console.table(res, ["role_id", "role_title"]);
+      console.log("");
+      init();
     });
-}
+  }
+
+//View all employees:
+  function viewEmployees() {
+    var query = "SELECT employee.first_name, employee.last_name, role.role_title, " +
+      "department.department_name FROM employee " +
+      "LEFT JOIN role on employee.role_id = role.role_id " +
+      "LEFT JOIN department on role.department_id = department.department_id";
+    connection.query(query, function (err, res) {
+      if (err) throw err;
+      console.table(res);
+      console.log("");
+      init();
+    });
+  }
+
 
 //Add a department:
 function addDepartment() {
