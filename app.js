@@ -24,17 +24,10 @@ function init() {
         "View Departments",
         "View Roles",
         "View All Employees",
-        "View Employees by Department",
-        "View Employees by Manager",
-        "View The Total Utilized Budget of a Department",
         "Add Department",
         "Add Role",
         "Add Employee",
         "Update Employee Role",
-        "Update Employee Manager",
-        "Remove Department",
-        "Remove Role",
-        "Remove Employee",
         "Exit"
       ]
     })
@@ -50,18 +43,6 @@ function init() {
 
         case "View All Employees":
           viewEmployees();
-          break;
-
-        case "View Employees by Department":
-          viewEmployeesByDepartment();
-          break;
-
-        case "View Employees by Manager":
-          viewEmployeesByManager();
-          break;
-
-        case "View The Total Utilized Budget of a Department":
-          viewBudget();
           break;
 
         case "Add Department":
@@ -80,22 +61,6 @@ function init() {
           updateEmployeeRole();
           break;
 
-        case "Update Employee Manager":
-          updateEmployeeManager();
-          break;
-
-        case "Remove Department":
-          removeDepartment();
-          break;
-
-        case "Remove Role":
-          removeRole();
-          break;
-
-        case "Remove Employee":
-          removeEmployee();
-          break;
-
         case "Exit":
           connection.end();
           break;
@@ -104,11 +69,18 @@ function init() {
 
 }
 
+
 //View all:
-function viewAllEmployees() {
-    if (err) throw err;
-    let query = "....."
-}
+function viewDepartments() {
+    var query = "SELECT * FROM department";
+    connection.query(query, function (err, res) {
+      if (err) throw err;
+      console.table(res);
+      console.log("");
+      init();
+    });
+  }
+
 
 //Add new:
 function addEmployee() {
