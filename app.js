@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
   user: "root",
@@ -72,7 +72,7 @@ function init() {
 
 //View all departments:
 function viewDepartments() {
-    var query = "SELECT * FROM department";
+    const query = "SELECT * FROM department";
     connection.query(query, function (err, res) {
       if (err) throw err;
       console.table(res);
@@ -83,7 +83,7 @@ function viewDepartments() {
 
   //View all roles:
   function viewRoles() {
-    var query = "SELECT role_id, role_title FROM role";
+    const query = "SELECT role_id, role_title FROM role";
     connection.query(query, function (err, res) {
       if (err) throw err;
       console.table(res, ["role_id", "role_title"]);
@@ -94,8 +94,8 @@ function viewDepartments() {
 
 //View all employees:
   function viewEmployees() {
-    var query = "SELECT employee.first_name, employee.last_name, role.role_title, " +
-      "department.department_name FROM employee " +
+    const query = "SELECT employee.first_name, employee.last_name, role.role_title, " +
+      "department.name FROM employee " +
       "LEFT JOIN role on employee.role_id = role.role_id " +
       "LEFT JOIN department on role.department_id = department.department_id";
     connection.query(query, function (err, res) {
@@ -118,7 +118,7 @@ function addDepartment() {
             connection.query("INSERT INTO department SET ?", { name: answer.department }, function (err) {
                 if (err) throw err;
                 console.log(`${answer.department} department was successfully updated. \n`);
-                start();
+                init();
             });
         });
 }
@@ -126,7 +126,7 @@ function addDepartment() {
 //Add a role:
 function addRole() {
     let array = [];
-    const query = "SELECT department_id as value, department_name as name FROM department";
+    const query = "SELECT department_id as value, name as name FROM department";
     connection.query(query, function (err, res) {
         if (err) throw err;
         array = JSON.parse(JSON.stringify(res));
