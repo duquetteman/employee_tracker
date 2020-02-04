@@ -169,7 +169,6 @@ function addRole() {
         }
 
         function addEmployee() {
-            //let array = [];
             inquirer.prompt([
               {
                 type: "input",
@@ -182,7 +181,7 @@ function addRole() {
                 message: "What is your last name?"
               }
             ]).then(function (answer) {
-              var query = "SELECT role_id as value, role_title as name FROM role WHERE manager = 0";
+              const query = "SELECT role_id as value, role_title as name FROM role WHERE manager = 0";
               connection.query(query, function (err, res) {
                 if (err) throw err;
                 let array = JSON.parse(JSON.stringify(res));
@@ -194,8 +193,7 @@ function addRole() {
                       message: "Choose a role for the new employee",
                       choices: array
                     }).then(function (answer1) {
-                      var query = "SELECT employee.employee_id as value, CONCAT(employee.first_name, ' ', employee.last_name) as name" +
-                        "FROM employee INNER JOIN role ON employee.role_id = role.role_id WHERE role.manager = 1";
+                      const query = "SELECT employee.employee_id as value, CONCAT(employee.first_name, ' ', employee.last_name) as name";
                       connection.query(query, function (err, res) {
                         if (err) throw err;
                         let array2 = JSON.parse(JSON.stringify(res));
@@ -224,7 +222,7 @@ function addRole() {
 
 function updateEmployeeRole() {
     //let array = [];
-    var query = "SELECT employee.employee_id as value, " +
+    const query = "SELECT employee.employee_id as value, " +
       "CONCAT(employee.first_name, ' ', employee.last_name) as name FROM employee WHERE manager_id IS NOT NULL";
     connection.query(query, function (err, res) {
       if (err) throw err;
@@ -236,7 +234,7 @@ function updateEmployeeRole() {
           message: "Which employee\"s role do you want to change?",
           choices: array
         }).then(function (answer1) {
-          var query = "SELECT role_id as value, role_title as name FROM role WHERE manager = 0";
+          const query = "SELECT role_id as value, role_title as name FROM role WHERE manager = 0";
           connection.query(query, function (err, res) {
             if (err) throw err;
             let array2 = JSON.parse(JSON.stringify(res));
@@ -271,31 +269,6 @@ function updateEmployeeRole() {
   
   
 
-//Delete employee
-function deleteEmployee() {
-    connection.query("SELECT * FROM employee", function (err, res) {
-        if (err) throw err;
-        inquirer.prompt({
-            name: "employee",
-            type: "list",
-            message: "What employee would you like to delete?",
-            choices: function () {
-                let choiceArray = [];
-                for (let i = 0; i < res.length; i++) {
-                    choiceArray.push(res[i].last_name);
-                }
-                return choiceArray;
-            }
-        })
-            .then(function (answer) {
-                connection.query("DELETE FROM employee WHERE ?", { last_name: answer.employee }, function (err) {
-                    if (err) throw err;
-                    console.log(`${answer.employee} was successfully deleted. \n`);
-                    start();
-                });
-            });
-    });
-}
 
 //Exit
 function exit() {
