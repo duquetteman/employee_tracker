@@ -1,69 +1,107 @@
-const mysql = require("mysql");
-const inquirer = require("inquirer");
+const mysql = require('mysql');
+const inquirer = require('inquirer');
 
-let connection = mysql.createConnection({
-    host: "localhost",
-    port: 3306,
-    user: "root",
-    password: "dbpassword",
-    database: "employee_managerDB"
+var connection = mysql.createConnection({
+  host: "localhost",
+  port: 3306,
+  user: "root",
+  password: "dbpassword",
+  database: "employee_managerDB"
 });
 
 connection.connect(function (err) {
-    if (err) throw err;
-    start();
+  if (err) throw err;
+  init();
 });
 
-const start = function () {
-    inquirer
-        .prompt({
-            name: "action",
-            type: "list",
-            message: "What would you like to do?",
-            choices: [
-                "View All Employees",
-                "Add Employee",
-                "Add Department",
-                "Add Role",
-                "Update Employee Role",
-                "Update Employee Manager",
-                "Delete Employee",
-                "Exit"
-            ]
-        }).then(function (answer) {
-            switch (answer.action) {
-                case "View All Employees":
-                    viewAllEmployees();
-                    break;
+function init() {
+  inquirer
+    .prompt({
+      name: "action",
+      type: "rawlist",
+      message: "What would you like to do?",
+      choices: [
+        "View Departments",
+        "View Roles",
+        "View All Employees",
+        "View Employees by Department",
+        "View Employees by Manager",
+        "View The Total Utilized Budget of a Department",
+        "Add Department",
+        "Add Role",
+        "Add Employee",
+        "Update Employee Role",
+        "Update Employee Manager",
+        "Remove Department",
+        "Remove Role",
+        "Remove Employee",
+        "Exit"
+      ]
+    })
+    .then(function (answer) {
+      switch (answer.action) {
+        case "View Departments":
+          viewDepartments();
+          break;
 
-                case "Add Employee":
-                    addEmployee();
-                    break;
+        case "View Roles":
+          viewRoles();
+          break;
 
-                case "Add Department":
-                    addDepartment();
-                    break;
+        case "View All Employees":
+          viewEmployees();
+          break;
 
-                case "Add Role":
-                    addRole();
-                    break;
+        case "View Employees by Department":
+          viewEmployeesByDepartment();
+          break;
 
-                case "Update Employee Role":
-                    updateEmployeeRole();
-                    break;
+        case "View Employees by Manager":
+          viewEmployeesByManager();
+          break;
 
-                case "Update Employee Manager":
-                    updateEmployeeManager();
-                    break;
+        case "View The Total Utilized Budget of a Department":
+          viewBudget();
+          break;
 
-                case "Delete Employee":
-                    deleteEmployee();
-                    break;
+        case "Add Department":
+          addDepartment();
+          break;
 
-                case "Exit":
-                    exit();
-            }
-        });
+        case "Add Role":
+          addRole();
+          break;
+
+        case "Add Employee":
+          addEmployee();
+          break;
+
+        case "Update Employee Role":
+          updateEmployeeRole();
+          break;
+
+        case "Update Employee Manager":
+          updateEmployeeManager();
+          break;
+
+        case "Remove Department":
+          removeDepartment();
+          break;
+
+        case "Remove Role":
+          removeRole();
+          break;
+
+        case "Remove Employee":
+          removeEmployee();
+          break;
+
+        case "Exit":
+          connection.end();
+          break;
+      }
+    });
+
 }
 
 //View all:
