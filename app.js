@@ -125,39 +125,102 @@ function addDepartment() {
 
 //Add a role:
 function addRole() {
-    connection.query("SELECT * FROM department", function (err, res) {
+    let array = [];
+    const query = "SELECT department_id as value, department_name as name FROM department";
+    connection.query(query, function (err, res) {
         if (err) throw err;
-        inquirer
-            .prompt([
-                {
-                    name: "role",
-                    type: "input",
-                    message: "What role would you like to add?"
-                },
-                {
-                    name: "salary",
-                    type: "input",
-                    message: "What salary does this role make?"
-                },
-                {
-                    name: "roleDep",
-                    type: "list",
-                    message: "What department does this role fall under?",
-                    choices: function () {
-                        let choiceArray = [];
-                        for (let i = 0; i < res.length; i++) {
-                            choiceArray.push(res[i].name);
-                        }
-                        return choiceArray;
-                    }
-                }
-            ])
-            .then(function (answer) {
-
+        array = JSON.parse(JSON.stringify(res));
+        const questions = [
+            {
+                type: "input",
+                name: "name",
+                message: "What is the name of the new role?"
+              },
+              {
+                type: "input",
+                name: "salary",
+                message: "What is the salary for this new role?",
+              },
+              {
+                type: "list",
+                name: "department",
+                message: "To which department does the new roll belong?",
+                choices: array
+              },
+              {
+                type: "confirm",
+                name: "manager",
+                message: "Is this a manager role?",
+                default: false
+              }];
+        
+            inquirer.prompt(questions).then(answer => {
+              connection.query("INSERT INTO role (role_title, role_salary, department_id, manager) VALUES (?, ?, ?, ?)",
+                [answer.name, answer.salary, answer.department, answer.manager], function (err, res) {
+                  if (err) throw err;
+                  if (res.affectedRows > 0) {
+                    console.log(res.affectedRows + " record added successfully!");
+                  }
+                  console.log("");
+                  init();
+                });
             });
-    });
-}
+          });
+        }
 
+        function addEmployee() {
+            //let array = [];
+            inquirer.prompt([
+              {
+                type: "input",
+                name: "first_name",
+                message: "What is your first name?"
+              },
+              {
+                type: "input",
+                name: "last_name",
+                message: "What is your last name?"
+              }
+            ]).then(function (answer) {
+              var query = "SELECT role_id as value, role_title as name FROM role WHERE manager = 0";
+              connection.query(query, function (err, res) {
+                if (err) throw err;
+                let array = JSON.parse(JSON.stringify(res));
+                inquirer
+                  .prompt(
+                    {
+                      name: "role",
+                      type: "list",
+                      message: "Choose a role for the new employee",
+                      choices: array
+                    }).then(function (answer1) {
+                      var query = "SELECT employee.employee_id as value, CONCAT(employee.first_name, ' ', employee.last_name) as name" +
+                        "FROM employee INNER JOIN role ON employee.role_id = role.role_id WHERE role.manager = 1";
+                      connection.query(query, function (err, res) {
+                        if (err) throw err;
+                        let array2 = JSON.parse(JSON.stringify(res));
+                        inquirer
+                          .prompt({
+                            name: "manager",
+                            type: "list",
+                            message: "Assign a manager for the new employee",
+                            choices: array2
+                          }).then(function (answer2) {
+                            connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ( ?, ?, ?, ?)",
+                              [answer.first_name, answer.last_name, answer1.role, answer2.manager], function (err, res) {
+                                if (err) throw err;
+                                if (res.affectedRows > 0) {
+                                  console.log(res.affectedRows + " record added successfully!");
+                                }
+                                console.log("");
+                                init();
+                              });
+                          });
+                      });
+                    });
+              });
+            });
+          }
 
 function updateEmployeeRole() {
     //let array = [];
@@ -206,53 +269,7 @@ function updateEmployeeRole() {
     });
   }
   
-  function updateEmployeeManager() {
-    //let array = [];
-    var query = "SELECT employee.employee_id as value, " +
-      "CONCAT(employee.first_name, ' ', employee.last_name) as name FROM employee WHERE manager_id IS NOT NULL";
-    connection.query(query, function (err, res) {
-      if (err) throw err;
-      let array = JSON.parse(JSON.stringify(res));
-      inquirer
-        .prompt({
-          name: "employee",
-          type: "list",
-          message: "Which employee\"s manager do you want to change?",
-          choices: array
-        }).then(function (answer1) {
-          var query = "SELECT employee.employee_id as value, CONCAT(employee.first_name, ' ', employee.last_name) as name" +
-            "FROM employee INNER JOIN role ON employee.role_id = role.role_id WHERE role.manager = 1";
-          connection.query(query, function (err, res) {
-            if (err) throw err;
-            let array2 = JSON.parse(JSON.stringify(res));
-            inquirer
-              .prompt({
-                name: "role",
-                type: "list",
-                message: "Who is the new manager?",
-                choices: array2
-              }).then(function (answer2) {
-                connection.query("UPDATE employee SET manager_id = ? WHERE employee_id = ?",
-                  [answer2.role, answer1.employee], function (err, res) {
-                    if (err) {
-                      if (err.errno === 1451){
-                        console.log("You cannot delete this record because of foreign key constrait!");
-                      }else{
-                        console.log("An error occured!");
-                      }
-                      return init();
-                    }
-                    if (res.affectedRows > 0) {
-                      console.log(res.affectedRows + " record updated successfully!");
-                    }
-                    console.log("");
-                    init();
-                  });
-              });
-          });
-        });
-    });
-  }
+  
 
 //Delete employee
 function deleteEmployee() {
